@@ -9,14 +9,18 @@
 5. [Architecture](#architecture)
 6. [Installation](#installation)
 7. [Quick Start](#quick-start)
-8. [CLI Reference](#cli-reference)
-9. [Input File Formats](#input-file-formats)
-10. [Output File Formats](#output-file-formats)
-11. [Resolution Algorithm](#resolution-algorithm)
-12. [Benefits for Developers](#benefits-for-developers)
-13. [Use Cases](#use-cases)
-14. [Best Practices](#best-practices)
-15. [Troubleshooting](#troubleshooting)
+8. [Configuration](#configuration)
+9. [CLI Reference](#cli-reference)
+10. [Registry Management](#registry-management)
+11. [Policy System](#policy-system)
+12. [Input File Formats](#input-file-formats)
+13. [Output File Formats](#output-file-formats)
+14. [Resolution Algorithm](#resolution-algorithm)
+15. [Enterprise Features](#enterprise-features)
+16. [Benefits for Developers](#benefits-for-developers)
+17. [Use Cases](#use-cases)
+18. [Best Practices](#best-practices)
+19. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -32,6 +36,7 @@ Think of it as a "package manager" for agent capabilities—just as `npm` or `pi
 - **Fully Offline**: No API calls, no network requests, no LLM reasoning
 - **Auditable**: Every decision includes machine-readable reason codes
 - **Safe by Default**: Fails with actionable errors when constraints can't be satisfied
+- **GitOps-Friendly**: Use git repositories as registries with PR-based approvals
 
 ---
 
@@ -86,15 +91,14 @@ Agent Resolver addresses these challenges with a purely algorithmic approach:
          │              │                 │               │
          │              ▼                 ▼               │
          │     ┌─────────────┐   ┌──────────────┐         │
-         │     │ Validation  │   │  Resolution  │         │
-         │     │   Rules     │   │   Algorithm  │         │
+         │     │  Policies   │   │  Resolution  │         │
+         │     │   Merge     │   │   Algorithm  │         │
          │     └─────────────┘   └──────────────┘         │
          │                                                │
          ▼                                                ▼
 ┌─────────────────┐                            ┌──────────────────────┐
-│ mcp.index.json  │                            │ agents.resolution.json│
-│ (available      │                            │ (audit trail)        │
-│  servers)       │                            │                      │
+│  Registries     │                            │ agents.resolution.json│
+│  (git/file)     │                            │ (audit trail)        │
 └─────────────────┘                            └──────────────────────┘
 ```
 
@@ -118,11 +122,19 @@ An **agent** is defined in `agents.md` with:
 - Has data handling characteristics (residency, sensitivity limits)
 - May be cryptographically signed by a publisher
 
-### Requirements
+### Registries
 
-**Requirements** specify what an agent needs:
-- Category: The type of capability (e.g., "audiences")
-- Permissions: Specific scopes needed (e.g., "read:audiences", "write:audiences")
+**Registries** are sources of MCP server definitions:
+- **File registries**: Local JSON files
+- **Git registries**: Git repositories synced locally (GitOps pattern)
+
+### Policies
+
+**Policies** are organization or team rules that constrain resolution:
+- Can require signed servers
+- Can enforce residency/sensitivity
+- Can forbid or allow specific servers
+- Policies can only tighten constraints, never loosen
 
 ### Constraints
 
@@ -132,7 +144,7 @@ An **agent** is defined in `agents.md` with:
 
 ### Resolution
 
-**Resolution** is the process of matching requirements to available servers while respecting constraints. The output is a deterministic selection pinned in a lockfile.
+**Resolution** is the process of matching requirements to available servers while respecting constraints and policies. The output is a deterministic selection pinned in a lockfile.
 
 ---
 
@@ -147,19 +159,26 @@ agent-resolver/
 │   │   ├── agents-md.ts      # agents.md frontmatter schema
 │   │   ├── mcp-index.ts      # mcp.index.json schema
 │   │   ├── lockfile.ts       # agents.lock schema
-│   │   └── resolution.ts     # Resolution explanation schema
+│   │   ├── resolution.ts     # Resolution explanation schema
+│   │   ├── policy.ts         # Policy schema
+│   │   └── config.ts         # Configuration schema
 │   │
 │   ├── core/            # Pure business logic (no I/O)
 │   │   ├── resolver.ts       # Resolution algorithm
 │   │   ├── validate.ts       # Schema validation
-│   │   └── hash.ts           # Deterministic hashing
+│   │   ├── hash.ts           # Deterministic hashing
+│   │   ├── federation.ts     # Multi-index merging
+│   │   └── policy.ts         # Policy evaluation
 │   │
 │   └── cli/             # Command-line interface
 │       ├── index.ts          # CLI entry point
 │       └── commands/
 │           ├── validate.ts   # agent validate
 │           ├── discover.ts   # agent discover
-│           └── resolve.ts    # agent resolve
+│           ├── resolve.ts    # agent resolve
+│           ├── sync.ts       # agent sync
+│           ├── policy.ts     # agent policy
+│           └── config.ts     # agent config
 │
 └── examples/
     └── hello-agent/     # Working example
@@ -167,21 +186,13 @@ agent-resolver/
 
 ### Design Principles
 
-1. **Pure Core**: The `core` package has no file system or network dependencies. It's pure TypeScript that takes data in and returns data out. This makes it:
-   - Easy to test
-   - Portable to other environments (browser, serverless)
-   - Guaranteed deterministic
+1. **Pure Core**: The `core` package has no file system or network dependencies. It's pure TypeScript that takes data in and returns data out.
 
-2. **Schema-First**: All data structures are defined with Zod schemas, providing:
-   - Runtime type validation
-   - TypeScript type inference
-   - Clear documentation of expected formats
+2. **Schema-First**: All data structures are defined with Zod schemas, providing runtime type validation and TypeScript type inference.
 
-3. **CLI as Adapter**: The `cli` package is a thin adapter that:
-   - Reads files from disk
-   - Calls core functions
-   - Writes outputs
-   - Handles user interaction
+3. **GitOps-Friendly**: Registries can be git repositories, enabling PR-based approval workflows.
+
+4. **Policy as Code**: Policies are JSON files that can be version-controlled and reviewed.
 
 ---
 
@@ -191,6 +202,7 @@ agent-resolver/
 
 - Node.js 20.0.0 or higher
 - npm 9.0.0 or higher
+- Git (for git registry sync)
 
 ### From Source
 
@@ -209,21 +221,19 @@ npm run build
 node packages/cli/dist/index.js --help
 ```
 
-### Adding to Your Project
-
-```bash
-# From the agent-resolver directory
-npm link
-
-# In your project directory
-npm link agent-resolver
-```
-
 ---
 
 ## Quick Start
 
-### Step 1: Create Your Agent Definition
+### Step 1: Initialize Configuration
+
+```bash
+agent config init
+```
+
+This creates `.agentrc.json` with default settings.
+
+### Step 2: Create Your Agent Definition
 
 Create `agents.md` in your project:
 
@@ -252,9 +262,9 @@ constraints:
 This agent analyzes business metrics and generates reports.
 ```
 
-### Step 2: Create Your MCP Server Index
+### Step 3: Create Your MCP Server Index
 
-Create `mcp.index.json` listing available servers:
+Create `mcp.index.json`:
 
 ```json
 [
@@ -272,79 +282,99 @@ Create `mcp.index.json` listing available servers:
       "signed": true,
       "publisher": "Acme Corp"
     }
-  },
-  {
-    "id": "acme-reporting",
-    "version": "3.0.0",
-    "endpoint": "https://mcp.acme.com/reporting",
-    "categories": ["reporting"],
-    "scopes": ["read:reports", "write:reports"],
-    "data": {
-      "residency": ["us-only"],
-      "maxSensitivity": "pii.low"
-    },
-    "trust": {
-      "signed": true,
-      "publisher": "Acme Corp"
-    }
   }
 ]
 ```
 
-### Step 3: Validate Your Configuration
+### Step 4: Validate, Check Policies, and Resolve
 
 ```bash
+# Validate configuration
 agent validate
 
-# Output:
-# Validating ./agents.md...
-# ✓ agents.md frontmatter is valid
-# Validating ./mcp.index.json...
-# ✓ mcp.index.json is valid
-# Validation complete.
-```
+# Check against policies (if configured)
+agent policy check
 
-### Step 4: Discover Available Servers
-
-```bash
-agent discover
-
-# Output:
-# Available MCP Servers by Category:
-#
-#   analytics:
-#     - acme-analytics@2.0.0 [signed]
-#       Scopes: read:metrics, read:dashboards, write:metrics
-#       Residency: us-only, eu-only
-#       Max Sensitivity: confidential
-#
-#   reporting:
-#     - acme-reporting@3.0.0 [signed]
-#       Scopes: read:reports, write:reports
-#       Residency: us-only
-#       Max Sensitivity: pii.low
-```
-
-### Step 5: Resolve and Generate Lockfile
-
-```bash
+# Resolve and generate lockfile
 agent resolve --explain
+```
 
-# Output:
-# Resolving agent 'my-analytics-agent@1.0.0'...
-#   Requirements: 2 MCP category/categories
-#   Available servers: 2
-#
-# ✓ Wrote ./agents.lock
-# ✓ Wrote ./agents.resolution.json
-#
-# Resolution Summary:
-#   analytics: acme-analytics@2.0.0
-#     Scopes: read:dashboards, read:metrics
-#   reporting: acme-reporting@3.0.0
-#     Scopes: read:reports, write:reports
-#
-# ✓ Resolution complete
+---
+
+## Configuration
+
+### Configuration File (.agentrc.json)
+
+Agent Resolver uses `.agentrc.json` for project configuration:
+
+```json
+{
+  "registries": [
+    {
+      "name": "local",
+      "type": "file",
+      "path": "./mcp.index.json"
+    },
+    {
+      "name": "org",
+      "type": "git",
+      "url": "git@github.com:myorg/mcp-registry.git",
+      "branch": "main",
+      "path": "servers/"
+    }
+  ],
+  "policies": [
+    "./org-policy.json",
+    "./team-policy.json"
+  ],
+  "cache": {
+    "path": ".agent-cache",
+    "ttl": 3600
+  },
+  "resolve": {
+    "output": "./agents.lock",
+    "explainOutput": "./agents.resolution.json",
+    "alwaysExplain": false
+  },
+  "audit": {
+    "webhook": "https://audit.example.com/log"
+  }
+}
+```
+
+### Configuration Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `registries` | Array of registry sources | `[]` |
+| `policies` | Array of policy file paths | `[]` |
+| `cache.path` | Directory for cached registries | `.agent-cache` |
+| `cache.ttl` | Cache time-to-live in seconds | `3600` |
+| `resolve.output` | Output path for lockfile | `./agents.lock` |
+| `resolve.explainOutput` | Output path for explanation | `./agents.resolution.json` |
+| `resolve.alwaysExplain` | Always generate explanation | `false` |
+| `audit.webhook` | URL to POST resolution results | `null` |
+
+### Registry Types
+
+**File Registry:**
+```json
+{
+  "name": "local",
+  "type": "file",
+  "path": "./mcp.index.json"
+}
+```
+
+**Git Registry:**
+```json
+{
+  "name": "org",
+  "type": "git",
+  "url": "git@github.com:myorg/mcp-registry.git",
+  "branch": "main",
+  "path": "servers/"
+}
 ```
 
 ---
@@ -359,6 +389,14 @@ agent [command] [options]
 Options:
   -V, --version  Output version number
   -h, --help     Display help
+
+Commands:
+  validate       Validate agents.md and mcp.index.json
+  discover       List available MCP servers
+  resolve        Resolve and generate lockfile
+  sync           Sync git registries
+  policy         Policy management
+  config         Configuration management
 ```
 
 ### agent validate
@@ -373,16 +411,6 @@ Options:
   -i, --index <path>   Path to mcp.index.json file (default: "./mcp.index.json")
 ```
 
-**Exit Codes:**
-- `0`: All files are valid
-- `1`: Validation errors found
-
-**Example:**
-```bash
-# Validate with custom paths
-agent validate -a ./config/agents.md -i ./config/servers.json
-```
-
 ### agent discover
 
 Lists available MCP servers grouped by category.
@@ -394,12 +422,6 @@ Options:
   -i, --index <path>   Path to mcp.index.json file (default: "./mcp.index.json")
 ```
 
-**Example:**
-```bash
-# Discover servers from custom index
-agent discover -i ./production-servers.json
-```
-
 ### agent resolve
 
 Resolves agent requirements and generates a lockfile.
@@ -409,20 +431,282 @@ agent resolve [options]
 
 Options:
   -a, --agents <path>         Path to agents.md file (default: "./agents.md")
-  -i, --index <path>          Path to mcp.index.json file (default: "./mcp.index.json")
-  -o, --output <path>         Path to output agents.lock (default: "./agents.lock")
+  -i, --index <path...>       Path(s) to mcp.index.json file(s)
+  -o, --output <path>         Path to output agents.lock
   -e, --explain               Also write agents.resolution.json
-  --explain-output <path>     Path to resolution output (default: "./agents.resolution.json")
+  --explain-output <path>     Path to resolution output
+  --audit-webhook <url>       Send resolution to audit webhook
+  --dry-run                   Show what would happen without writing
 ```
 
-**Exit Codes:**
-- `0`: Resolution successful
-- `1`: Resolution failed (no candidates for required category)
+**Examples:**
 
-**Example:**
 ```bash
-# Resolve with full audit trail
-agent resolve --explain -o ./lockfiles/agents.lock --explain-output ./audit/resolution.json
+# Basic resolve
+agent resolve
+
+# Resolve with explanation
+agent resolve --explain
+
+# Merge multiple indexes
+agent resolve -i org-servers.json -i team-servers.json
+
+# Dry run to preview
+agent resolve --dry-run
+
+# Send to audit system
+agent resolve --audit-webhook https://audit.example.com/log
+```
+
+### agent sync
+
+Syncs git registries to local cache.
+
+```bash
+agent sync [options]
+
+Options:
+  -c, --cache <path>    Cache directory path
+  --registry <name>     Sync only specific registry
+
+Subcommands:
+  agent sync status     Show sync status of all registries
+```
+
+**Examples:**
+
+```bash
+# Sync all git registries
+agent sync
+
+# Check sync status
+agent sync status
+
+# Sync specific registry
+agent sync --registry org
+```
+
+### agent policy
+
+Policy management commands.
+
+```bash
+agent policy <subcommand>
+
+Subcommands:
+  list                  List configured policies
+  check                 Check agent against policies (dry-run)
+  effective             Show effective constraints after merge
+```
+
+**Examples:**
+
+```bash
+# List all policies
+agent policy list
+
+# Check agent against policies
+agent policy check
+
+# Show merged constraints
+agent policy effective
+```
+
+### agent config
+
+Configuration management.
+
+```bash
+agent config <subcommand>
+
+Subcommands:
+  init                  Create new .agentrc.json
+  show                  Display current configuration
+  path                  Show config file path
+```
+
+---
+
+## Registry Management
+
+### GitOps Pattern
+
+Use git repositories as your source of truth for MCP server definitions:
+
+```
+org-mcp-registry/              (Git repository)
+├── servers/
+│   ├── acme-audiences.json
+│   ├── acme-reporting.json
+│   └── index.json            (combined index)
+├── policies/
+│   └── org-baseline.json
+└── CODEOWNERS                 (@security-team for policies)
+```
+
+### Syncing Registries
+
+```bash
+# Configure git registry in .agentrc.json
+{
+  "registries": [
+    {
+      "name": "org",
+      "type": "git",
+      "url": "git@github.com:myorg/mcp-registry.git",
+      "branch": "main",
+      "path": "servers/"
+    }
+  ]
+}
+
+# Sync to local cache
+agent sync
+
+# Check status
+agent sync status
+# Output:
+#   org:
+#     Type: git
+#     Commit: a1b2c3d
+#     Synced: 2025-01-15T10:30:00.000Z
+```
+
+### Offline Mode
+
+After syncing, resolution works entirely offline:
+
+```bash
+# Sync once while online
+agent sync
+
+# Work offline
+agent resolve  # Uses cached registry
+```
+
+### Benefits of GitOps
+
+| Feature | How Git Provides It |
+|---------|---------------------|
+| Versioning | Git tags and commits |
+| Approval workflow | Pull request reviews |
+| Audit trail | Git history |
+| Rollback | `git revert` |
+| Access control | Repository permissions |
+
+---
+
+## Policy System
+
+### Policy Overview
+
+Policies allow organizations to enforce constraints across all agents:
+
+```json
+{
+  "id": "org-security-baseline",
+  "name": "Organization Security Baseline",
+  "version": "1.0.0",
+  "priority": 100,
+  "rules": [
+    {
+      "id": "require-signed-servers",
+      "type": "require-signed",
+      "value": true,
+      "severity": "error",
+      "message": "All MCP servers must be cryptographically signed"
+    }
+  ]
+}
+```
+
+### Policy Rule Types
+
+| Type | Description | Value |
+|------|-------------|-------|
+| `require-signed` | Require signed servers | `boolean` |
+| `require-residency` | Enforce data residency | `"us-only"` \| `"eu-only"` |
+| `require-sensitivity` | Set minimum sensitivity | Sensitivity level |
+| `forbid-server` | Block specific server | Server ID |
+| `allow-server` | Whitelist servers | Array of server IDs |
+
+### Policy Hierarchy
+
+Policies are applied in priority order (lower first, higher last):
+
+```
+Agent Constraints (base)
+       ↓
+Team Policy (priority: 50)
+       ↓
+Org Policy (priority: 100)
+       ↓
+Compliance Policy (priority: 1000)
+```
+
+**Important:** Policies can only **tighten** constraints, never loosen them.
+
+### Policy Examples
+
+**Security Baseline:**
+```json
+{
+  "id": "security-baseline",
+  "name": "Security Baseline",
+  "version": "1.0.0",
+  "priority": 100,
+  "rules": [
+    {
+      "id": "require-signed",
+      "type": "require-signed",
+      "value": true,
+      "severity": "error",
+      "message": "Only signed servers allowed"
+    }
+  ]
+}
+```
+
+**EU Data Residency:**
+```json
+{
+  "id": "eu-data-policy",
+  "name": "EU Data Residency",
+  "version": "1.0.0",
+  "priority": 50,
+  "rules": [
+    {
+      "id": "eu-residency",
+      "type": "require-residency",
+      "value": "eu-only",
+      "severity": "error",
+      "message": "Data must stay in EU"
+    }
+  ]
+}
+```
+
+### Checking Policies
+
+```bash
+# Check agent against all configured policies
+agent policy check
+
+# Output:
+# Checking 'my-agent@1.0.0' against 2 policies...
+#
+# Policies Applied:
+#   Organization Security Baseline (org-security-baseline)
+#     • require-signed-servers
+#   EU Data Policy (eu-data-policy)
+#     • eu-residency
+#
+# Effective Constraints:
+#   Require Signed: true
+#   Residency: eu-only
+#   Sensitivity: internal
+#
+# ✓ Policy check passed
 ```
 
 ---
@@ -482,11 +766,11 @@ The server index is a JSON array of server definitions:
     "categories": ["string"], // Categories this server provides
     "scopes": ["string"],     // Permission scopes supported
     "data": {
-      "residency": ["enum"],  // Supported residencies: any | us-only | eu-only
-      "maxSensitivity": "enum" // Maximum sensitivity level handled
+      "residency": ["enum"],  // Supported residencies
+      "maxSensitivity": "enum" // Maximum sensitivity level
     },
     "trust": {
-      "signed": boolean,      // Whether server is cryptographically signed
+      "signed": boolean,      // Whether cryptographically signed
       "publisher": "string"   // Publisher name
     },
     "policy": {               // Optional
@@ -494,6 +778,28 @@ The server index is a JSON array of server definitions:
     }
   }
 ]
+```
+
+### Policy Files
+
+Policy files are JSON with the following structure:
+
+```json
+{
+  "id": "string",           // Unique policy identifier
+  "name": "string",         // Human-readable name
+  "version": "string",      // Policy version
+  "priority": number,       // Application order (higher = later)
+  "rules": [
+    {
+      "id": "string",       // Rule identifier
+      "type": "string",     // Rule type
+      "value": any,         // Rule value
+      "severity": "error" | "warning",
+      "message": "string"   // Human-readable message
+    }
+  ]
+}
 ```
 
 ---
@@ -527,8 +833,6 @@ The lockfile pins exact server selections:
 hash = SHA256(id + "@" + version + "|" + endpoint + "|" + sorted_scopes.join(","))
 ```
 
-The hash allows verification that the locked configuration hasn't been tampered with.
-
 ### agents.resolution.json
 
 The resolution explanation provides full audit trail:
@@ -550,20 +854,11 @@ The resolution explanation provides full audit trail:
         "scopes": ["read:dashboards", "read:metrics"],
         "selectionReason": "Selected by tie-break: signed, id='acme-analytics'"
       },
-      "rejected": [
-        {
-          "serverId": "beta-analytics",
-          "version": "1.0.0",
-          "reason": {
-            "code": "RESIDENCY_MISMATCH",
-            "message": "Agent requires 'us-only' but server supports: eu-only"
-          }
-        }
-      ],
+      "rejected": [...],
       "constraintsApplied": {
         "residency": "us-only",
         "sensitivity": "internal",
-        "requireSigned": null
+        "requireSigned": true
       }
     }
   ]
@@ -575,74 +870,124 @@ The resolution explanation provides full audit trail:
 | Code | Description |
 |------|-------------|
 | `MISSING_CATEGORY` | Server doesn't provide the required category |
-| `MISSING_SCOPE` | Server doesn't support all required permission scopes |
-| `RESIDENCY_MISMATCH` | Server's data residency is incompatible with agent constraints |
-| `SENSITIVITY_EXCEEDED` | Agent's sensitivity level exceeds server's maximum |
-| `UNSIGNED_NOT_ALLOWED` | Server is unsigned but signed servers are required (future) |
+| `MISSING_SCOPE` | Server doesn't support all required scopes |
+| `RESIDENCY_MISMATCH` | Server's residency is incompatible |
+| `SENSITIVITY_EXCEEDED` | Agent's sensitivity exceeds server's max |
+| `UNSIGNED_NOT_ALLOWED` | Server is unsigned but policy requires signed |
 
 ---
 
 ## Resolution Algorithm
 
-The resolution algorithm follows these steps for each requirement:
+### Step 1: Load and Merge
 
-### Step 1: Candidate Selection
+1. Load all registries (file and cached git)
+2. Merge server indexes (later registries override)
+3. Load and merge policies
+4. Compute effective constraints
 
-Filter servers to find candidates that:
-1. Include the required category in their `categories` array
-2. Support ALL required permissions (scopes are a superset)
+### Step 2: Candidate Selection
 
-```
-candidates = servers.filter(s =>
-  s.categories.includes(requirement.category) &&
-  requirement.permissions.every(p => s.scopes.includes(p))
-)
-```
+For each requirement, filter servers that:
+1. Include the required category
+2. Support ALL required permissions
 
-### Step 2: Constraint Filtering
+### Step 3: Constraint Filtering
 
-Eliminate candidates that violate constraints:
+Eliminate candidates that violate:
+- Residency requirements
+- Sensitivity limits
+- Policy rules (require-signed, forbid-server, etc.)
 
-**Residency Check:**
-```
-if agent.residency == "us-only":
-  reject servers where "us-only" not in server.residency AND "any" not in server.residency
+### Step 4: Deterministic Selection
 
-if agent.residency == "eu-only":
-  reject servers where "eu-only" not in server.residency AND "any" not in server.residency
-```
+If multiple candidates remain, select using tie-breaking:
+1. Prefer signed servers (`trust.signed = true`)
+2. Lexicographically smallest ID
+3. Lexicographically smallest version
 
-**Sensitivity Check:**
-```
-sensitivity_order = [public, internal, confidential, pii.low, pii.moderate, pii.high]
+### Step 5: Output
 
-if index(agent.sensitivity) > index(server.maxSensitivity):
-  reject server
-```
+Generate lockfile and optional explanation with full audit trail.
 
-### Step 3: Deterministic Selection
+---
 
-If multiple candidates remain, select using tie-breaking rules (in order):
+## Enterprise Features
 
-1. **Prefer signed servers** (`trust.signed = true` beats `false`)
-2. **Lexicographically smallest ID** (`"aaa"` beats `"bbb"`)
-3. **Lexicographically smallest version** (`"1.0.0"` beats `"2.0.0"`)
+### Audit Webhooks
 
-```
-candidates.sort((a, b) => {
-  if (a.trust.signed !== b.trust.signed) return a.trust.signed ? -1 : 1;
-  if (a.id !== b.id) return a.id.localeCompare(b.id);
-  return a.version.localeCompare(b.version);
-});
-selected = candidates[0];
+Send resolution results to an external audit system:
+
+```bash
+# Via CLI flag
+agent resolve --audit-webhook https://audit.example.com/log
+
+# Or in .agentrc.json
+{
+  "audit": {
+    "webhook": "https://audit.example.com/log"
+  }
+}
 ```
 
-### Step 4: Failure Handling
+**Webhook Payload:**
+```json
+{
+  "event": "resolution",
+  "timestamp": "2025-01-15T10:30:00.000Z",
+  "agent": {
+    "name": "my-agent",
+    "version": "1.0.0"
+  },
+  "lockfile": { ... },
+  "explanation": { ... },
+  "environment": {
+    "user": "developer",
+    "ci": false
+  }
+}
+```
 
-If no candidates remain after filtering:
-- The resolution fails with exit code 1
-- Error message lists the failed category
-- All rejection reasons are provided for debugging
+### Multi-Index Federation
+
+Merge servers from multiple sources:
+
+```bash
+# Multiple indexes on command line
+agent resolve -i org-servers.json -i team-servers.json -i local.json
+
+# Or in .agentrc.json
+{
+  "registries": [
+    { "name": "org", "type": "git", "url": "..." },
+    { "name": "team", "type": "file", "path": "./team-servers.json" },
+    { "name": "local", "type": "file", "path": "./local.json" }
+  ]
+}
+```
+
+**Merge Rules:**
+- Servers are merged by `id@version` key
+- Later registries override earlier ones
+- Result is sorted deterministically
+
+### Dry Run Mode
+
+Preview resolution without writing files:
+
+```bash
+agent resolve --dry-run
+
+# Output:
+# Applied 2 policies
+# Resolving agent 'my-agent@1.0.0'...
+#
+# Dry run - would write:
+#   ./agents.lock
+#
+# Lockfile preview:
+# { ... }
+```
 
 ---
 
@@ -650,348 +995,153 @@ If no candidates remain after filtering:
 
 ### 1. Reproducible Builds
 
-Just like `package-lock.json` for npm dependencies, `agents.lock` ensures every team member and every environment uses the exact same MCP server configuration.
-
-```bash
-# CI/CD pipeline
-git checkout main
-npm install
-agent resolve
-# Guaranteed identical agents.lock every time
-```
+Just like `package-lock.json`, `agents.lock` ensures identical configurations everywhere.
 
 ### 2. Zero-Latency Resolution
 
-Unlike LLM-based selection:
-- No API calls = no latency
-- No rate limits
-- Works offline
-- Works in air-gapped environments
-
-```
-Traditional LLM selection: 500ms - 2000ms per request
-Agent Resolver: < 10ms for any configuration size
-```
+No API calls, no rate limits, works offline.
 
 ### 3. Complete Audit Trail
 
-Every selection decision is documented:
+Every decision is documented with reason codes.
 
-```json
-{
-  "selected": {
-    "serverId": "acme-analytics",
-    "selectionReason": "Selected by tie-break: signed, id='acme-analytics'"
-  },
-  "rejected": [
-    {
-      "serverId": "competitor-analytics",
-      "reason": {
-        "code": "RESIDENCY_MISMATCH",
-        "message": "Agent requires 'us-only' but server supports: eu-only"
-      }
-    }
-  ]
-}
-```
+### 4. GitOps Integration
 
-This is invaluable for:
-- Security audits
-- Compliance reviews
-- Debugging configuration issues
-- Understanding why a particular server was chosen
+Use git for registries: versioning, PRs, audit trail—all free.
 
-### 4. Fail-Fast Validation
+### 5. Policy as Code
 
-Catch configuration errors before deployment:
+Centralized governance that's version-controlled and reviewable.
 
-```bash
-$ agent validate
-✗ agents.md validation failed:
-  - requires.mcp.0.permissions: Array must contain at least 1 element(s)
-```
+### 6. Fail-Fast Validation
 
-### 5. Type-Safe Schemas
+Catch configuration errors before deployment.
 
-All inputs are validated against strict schemas:
-- Invalid residency values are caught immediately
-- Missing required fields produce clear error messages
-- Malformed JSON fails fast with line numbers
-
-### 6. Deterministic Hashes
-
-Each locked server includes a hash for integrity verification:
-
-```json
-{
-  "serverId": "acme-analytics",
-  "hash": "a5cdac3f506074eb4b3fcfa82d590b88c6fa2a0e7d804efe2bbf82dcb7dc8816"
-}
-```
-
-You can verify the lock hasn't been tampered with:
-
-```bash
-# Regenerate and compare hashes
-agent resolve
-diff agents.lock agents.lock.backup
-```
-
-### 7. Easy Integration
-
-The modular architecture allows:
-
-```typescript
-// Use core logic in your own tools
-import { resolve, validateAgentsFrontmatter } from '@agent-resolver/core';
-
-const result = resolve({
-  agent: myAgentConfig,
-  servers: myServerIndex
-});
-
-console.log(result.lockfile);
-```
-
-### 8. CI/CD Ready
-
-Built-in exit codes and structured output for automation:
+### 7. CI/CD Ready
 
 ```yaml
-# GitHub Actions example
-- name: Validate agent configuration
-  run: agent validate
+- name: Sync registries
+  run: agent sync
 
-- name: Resolve dependencies
+- name: Check policies
+  run: agent policy check
+
+- name: Resolve
   run: agent resolve --explain
-
-- name: Verify determinism
-  run: |
-    agent resolve -o lock1.json
-    agent resolve -o lock2.json
-    diff lock1.json lock2.json
 ```
 
 ---
 
 ## Use Cases
 
-### Use Case 1: Multi-Environment Deployment
+### Multi-Environment Deployment
 
-**Problem:** Different environments (dev, staging, prod) need different MCP servers.
-
-**Solution:**
 ```bash
 # Development
-agent resolve -i servers-dev.json -o agents.lock
-
-# Staging
-agent resolve -i servers-staging.json -o agents.lock
+agent resolve -i servers-dev.json
 
 # Production
-agent resolve -i servers-prod.json -o agents.lock
+agent sync  # Get latest from org registry
+agent resolve
 ```
 
-### Use Case 2: Compliance Verification
-
-**Problem:** Need to prove all data stays in required geographic region.
-
-**Solution:**
-```yaml
-# agents.md
-constraints:
-  data:
-    residency: eu-only
-```
+### Compliance Verification
 
 ```bash
+# Check policies before deploy
+agent policy check
 agent resolve --explain
-cat agents.resolution.json | jq '.requirements[].constraintsApplied'
-# {"residency": "eu-only", ...}
+
+# Send to audit system
+agent resolve --audit-webhook https://compliance.example.com
 ```
 
-### Use Case 3: Security Audit
+### Offline Development
 
-**Problem:** Security team needs to review all external connections.
-
-**Solution:**
 ```bash
-agent resolve --explain
-cat agents.resolution.json | jq '.requirements[].selected'
-# Full list of selected servers with endpoints
+# Sync once while online
+agent sync
+
+# Work offline indefinitely
+agent resolve
 ```
-
-### Use Case 4: Dependency Updates
-
-**Problem:** Need to update to newer server versions while maintaining compatibility.
-
-**Solution:**
-```bash
-# Update mcp.index.json with new server versions
-# Re-resolve
-agent resolve --explain
-
-# Compare changes
-diff agents.lock.old agents.lock
-```
-
-### Use Case 5: Offline Development
-
-**Problem:** Need to develop agents without network access.
-
-**Solution:**
-Agent Resolver works entirely offline—no API calls, no network requirements. Just the local index file.
 
 ---
 
 ## Best Practices
 
-### 1. Version Control Your Lockfile
+### 1. Use Git Registries
 
-Always commit `agents.lock` to version control:
+Store server definitions in git for versioning and approval workflows.
 
-```bash
-git add agents.lock
-git commit -m "chore: update agent lockfile"
-```
+### 2. Implement Policies
 
-### 2. Generate Explanations in CI
+Start with a security baseline policy requiring signed servers.
 
-Always use `--explain` in CI/CD to maintain audit trail:
-
-```bash
-agent resolve --explain
-git add agents.resolution.json
-```
-
-### 3. Validate Before Resolve
-
-Run validation first to catch errors early:
-
-```bash
-agent validate && agent resolve
-```
-
-### 4. Use Specific Residency Constraints
-
-Be explicit about data residency:
+### 3. Sync in CI/CD
 
 ```yaml
-# Good - explicit
-constraints:
-  data:
-    residency: us-only
-
-# Avoid - implicit "any"
-constraints:
-  data:
-    sensitivity: internal
+- run: agent sync
+- run: agent policy check
+- run: agent resolve --explain
 ```
 
-### 5. Document Your Requirements
+### 4. Commit Lockfiles
 
-Use the Markdown body of `agents.md` to document why each requirement exists:
+Always commit `agents.lock` for reproducibility.
 
-```markdown
----
-name: my-agent
-requires:
-  mcp:
-    - category: reporting
-      permissions:
-        - read:reports
----
+### 5. Use Dry Run
 
-# My Agent
-
-## Requirements
-
-### Reporting
-We need reporting access to generate quarterly summaries.
-The `read:reports` permission is required for dashboard data.
-```
-
-### 6. Keep Server Index Updated
-
-Regularly update `mcp.index.json` with latest server versions:
-
+Preview changes before writing:
 ```bash
-# In CI, you might fetch this from a central registry
-curl -o mcp.index.json https://registry.example.com/servers.json
-agent resolve
+agent resolve --dry-run
+```
+
+### 6. Enable Audit Logging
+
+Configure a webhook for compliance:
+```json
+{ "audit": { "webhook": "https://..." } }
 ```
 
 ---
 
 ## Troubleshooting
 
-### Error: "Resolution failed: no candidates for categories"
-
-**Cause:** No servers match the required category and constraints.
-
-**Solution:**
-1. Run `agent discover` to see available servers
-2. Check if any server provides the required category
-3. Verify residency constraints aren't too restrictive
-4. Check sensitivity levels
+### Error: "Registry not synced"
 
 ```bash
-agent resolve --explain
-cat agents.resolution.json | jq '.requirements[] | select(.selected == null)'
+# Solution: Sync the registry
+agent sync
 ```
 
-### Error: "agents.md validation failed"
-
-**Cause:** Invalid frontmatter schema.
-
-**Solution:**
-1. Check required fields are present (name, version, requires)
-2. Verify enum values are valid (sensitivity, residency)
-3. Ensure arrays have at least one element
+### Error: "Policy violations"
 
 ```bash
-agent validate
-# Read error messages for specific field issues
+# Check which policies are failing
+agent policy check
+
+# Review effective constraints
+agent policy effective
 ```
 
-### Error: "Server missing required scopes"
-
-**Cause:** Server doesn't provide all permissions your agent needs.
-
-**Solution:**
-1. Check `agents.resolution.json` for `MISSING_SCOPE` rejections
-2. Either reduce required permissions or find a different server
+### Error: "No server indexes found"
 
 ```bash
-cat agents.resolution.json | jq '.requirements[].rejected[] | select(.reason.code == "MISSING_SCOPE")'
+# Ensure config exists
+agent config show
+
+# Or specify index directly
+agent resolve -i ./mcp.index.json
 ```
 
 ### Lockfile Changes Unexpectedly
 
-**Cause:** Usually timestamp differences or non-deterministic processing.
-
-**Solution:**
-1. Verify you're using the same `mcp.index.json`
-2. Check if servers were added/removed from index
-3. Compare excluding timestamps:
-
 ```bash
+# Compare excluding timestamps
 jq 'del(.resolvedAt)' agents.lock.old > old.json
 jq 'del(.resolvedAt)' agents.lock.new > new.json
 diff old.json new.json
-```
-
-### Server Selected Unexpectedly
-
-**Cause:** Tie-breaking rules selected a server you didn't expect.
-
-**Solution:**
-1. Check `agents.resolution.json` for `selectionReason`
-2. Review tie-breaking order: signed → id → version
-3. Consider if server signing status changed
-
-```bash
-cat agents.resolution.json | jq '.requirements[].selected.selectionReason'
 ```
 
 ---
@@ -1001,26 +1151,14 @@ cat agents.resolution.json | jq '.requirements[].selected.selectionReason'
 To manually verify a lockfile hash:
 
 ```bash
-# For a locked server entry
 id="acme-analytics"
 version="2.0.0"
 endpoint="https://mcp.acme.com/analytics"
 scopes="read:dashboards,read:metrics"  # sorted, comma-separated
 
-# Compute hash
 echo -n "${id}@${version}|${endpoint}|${scopes}" | sha256sum
-# Should match the hash in agents.lock
 ```
 
 ---
 
-## Getting Help
-
-- **Documentation:** This file
-- **Examples:** See `examples/hello-agent/`
-- **Issues:** Report bugs at the project repository
-- **Validation Errors:** Run `agent validate` with verbose output
-
----
-
-*Agent Resolver - Deterministic. Auditable. Secure.*
+*Agent Resolver - Deterministic. Auditable. GitOps-Ready.*
