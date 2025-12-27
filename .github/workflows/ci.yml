@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main, claude/*]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all packages
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Validate example
+        working-directory: examples/hello-agent
+        run: |
+          node ../../packages/cli/dist/index.js validate
+          node ../../packages/cli/dist/index.js discover
+          node ../../packages/cli/dist/index.js resolve --explain
+
+          # Verify outputs were created
+          test -f agents.lock
+          test -f agents.resolution.json
+
+          echo "=== agents.lock ==="
+          cat agents.lock
+
+          echo "=== agents.resolution.json ==="
+          cat agents.resolution.json
+
+      - name: Verify deterministic output
+        working-directory: examples/hello-agent
+        run: |
+          # Run resolve twice and compare outputs
+          node ../../packages/cli/dist/index.js resolve --explain -o agents.lock.1 --explain-output agents.resolution.json.1
+          node ../../packages/cli/dist/index.js resolve --explain -o agents.lock.2 --explain-output agents.resolution.json.2
+
+          # Compare lockfiles (excluding resolvedAt timestamp)
+          jq 'del(.resolvedAt)' agents.lock.1 > lock1.json
+          jq 'del(.resolvedAt)' agents.lock.2 > lock2.json
+          diff lock1.json lock2.json
+
+          echo "Deterministic output verified!"

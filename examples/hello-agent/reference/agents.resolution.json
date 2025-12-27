@@ -1,0 +1,118 @@
+{
+  "agentName": "hello-agent",
+  "agentVersion": "1.0.0",
+  "resolvedAt": "TIMESTAMP",
+  "success": true,
+  "requirements": [
+    {
+      "category": "audiences",
+      "requiredPermissions": [
+        "read:audiences",
+        "write:audiences"
+      ],
+      "selected": {
+        "serverId": "acme-audiences",
+        "version": "2.1.0",
+        "endpoint": "https://mcp.acme.com/audiences",
+        "scopes": [
+          "read:audiences",
+          "write:audiences"
+        ],
+        "selectionReason": "Selected by tie-break: signed, id='acme-audiences'"
+      },
+      "rejected": [
+        {
+          "serverId": "acme-reporting",
+          "version": "3.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'audiences'"
+          }
+        },
+        {
+          "serverId": "beta-audiences",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Not selected: lost tie-break to 'acme-audiences@2.1.0'"
+          }
+        },
+        {
+          "serverId": "delta-analytics",
+          "version": "2.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'audiences'"
+          }
+        },
+        {
+          "serverId": "gamma-reporting",
+          "version": "1.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'audiences'"
+          }
+        }
+      ],
+      "constraintsApplied": {
+        "residency": "us-only",
+        "sensitivity": "internal",
+        "requireSigned": null
+      }
+    },
+    {
+      "category": "reporting",
+      "requiredPermissions": [
+        "read:reports"
+      ],
+      "selected": {
+        "serverId": "acme-reporting",
+        "version": "3.0.0",
+        "endpoint": "https://mcp.acme.com/reporting",
+        "scopes": [
+          "read:reports"
+        ],
+        "selectionReason": "Only matching candidate"
+      },
+      "rejected": [
+        {
+          "serverId": "acme-audiences",
+          "version": "2.1.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'reporting'"
+          }
+        },
+        {
+          "serverId": "beta-audiences",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'reporting'"
+          }
+        },
+        {
+          "serverId": "delta-analytics",
+          "version": "2.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'reporting'"
+          }
+        },
+        {
+          "serverId": "gamma-reporting",
+          "version": "1.5.0",
+          "reason": {
+            "code": "RESIDENCY_MISMATCH",
+            "message": "Agent requires 'us-only' but server supports: eu-only"
+          }
+        }
+      ],
+      "constraintsApplied": {
+        "residency": "us-only",
+        "sensitivity": "internal",
+        "requireSigned": null
+      }
+    }
+  ]
+}
