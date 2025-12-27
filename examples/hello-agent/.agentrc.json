@@ -1,0 +1,17 @@
+{
+  "registries": [
+    {
+      "name": "local",
+      "type": "file",
+      "path": "./mcp.index.json"
+    }
+  ],
+  "policies": [
+    "./org-policy.json"
+  ],
+  "resolve": {
+    "output": "./agents.lock",
+    "explainOutput": "./agents.resolution.json",
+    "alwaysExplain": false
+  }
+}

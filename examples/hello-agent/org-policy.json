@@ -1,0 +1,15 @@
+{
+  "id": "org-security-baseline",
+  "name": "Organization Security Baseline",
+  "version": "1.0.0",
+  "priority": 100,
+  "rules": [
+    {
+      "id": "require-signed-servers",
+      "type": "require-signed",
+      "value": true,
+      "severity": "warning",
+      "message": "Prefer signed MCP servers for production use"
+    }
+  ]
+}
