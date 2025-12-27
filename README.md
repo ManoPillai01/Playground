@@ -1,6 +1,6 @@
 # Agent Resolver
 
-A deterministic CLI for resolving agent requirements against available MCP servers.
+A deterministic CLI for resolving agent requirements against available MCP (Model Context Protocol) servers.
 
 ## Features
 
@@ -8,6 +8,7 @@ A deterministic CLI for resolving agent requirements against available MCP serve
 - **Auditable**: Every accept/reject decision includes machine-readable reason codes
 - **Safe-by-default**: Fails with actionable errors when constraints cannot be satisfied
 - **Offline**: No model calls or network requests required
+- **Enterprise-ready**: GitOps registries, policy-as-code, and audit webhooks
 
 ## Quickstart
 
@@ -74,11 +75,118 @@ agent resolve [options]
 
 Options:
   -a, --agents <path>         Path to agents.md file (default: "./agents.md")
-  -i, --index <path>          Path to mcp.index.json file (default: "./mcp.index.json")
+  -i, --index <path...>       Path(s) to mcp.index.json file(s)
   -o, --output <path>         Path to output agents.lock (default: "./agents.lock")
   -e, --explain               Also write agents.resolution.json
-  --explain-output <path>     Path to output resolution file (default: "./agents.resolution.json")
+  --explain-output <path>     Path to output resolution file
+  --audit-webhook <url>       Send resolution to audit webhook
+  --dry-run                   Show what would happen without writing files
 ```
+
+### `agent sync`
+
+Synchronize MCP server indexes from git registries.
+
+```bash
+agent sync [options]
+
+Options:
+  -r, --registry <name>  Sync specific registry only
+  --force                Force re-clone even if cache exists
+```
+
+### `agent policy`
+
+Policy management commands.
+
+```bash
+agent policy list              # List configured policies
+agent policy check             # Check agent against policies
+agent policy effective         # Show effective merged constraints
+```
+
+### `agent config`
+
+Configuration management commands.
+
+```bash
+agent config init              # Create .agentrc.json
+agent config show              # Show current configuration
+agent config path              # Show config file path
+```
+
+## Configuration
+
+Create a `.agentrc.json` file to configure registries, policies, and defaults:
+
+```json
+{
+  "registries": [
+    {
+      "name": "local",
+      "type": "file",
+      "path": "./mcp.index.json"
+    },
+    {
+      "name": "company-servers",
+      "type": "git",
+      "url": "https://github.com/company/mcp-registry.git",
+      "path": "servers/index.json",
+      "branch": "main"
+    }
+  ],
+  "policies": [
+    "./org-policy.json"
+  ],
+  "cache": {
+    "path": ".agent-cache",
+    "ttl": 3600
+  },
+  "resolve": {
+    "output": "./agents.lock",
+    "explainOutput": "./agents.resolution.json",
+    "alwaysExplain": false
+  },
+  "audit": {
+    "webhook": "https://audit.company.com/agent-resolver"
+  }
+}
+```
+
+## Policy System
+
+Define organizational policies to enforce constraints:
+
+```json
+{
+  "id": "org-security-baseline",
+  "name": "Organization Security Baseline",
+  "version": "1.0.0",
+  "priority": 100,
+  "rules": [
+    {
+      "id": "require-signed-servers",
+      "type": "require-signed",
+      "value": true,
+      "severity": "warning",
+      "message": "Prefer signed MCP servers for production use"
+    },
+    {
+      "id": "eu-data-residency",
+      "type": "require-residency",
+      "value": "eu-only",
+      "severity": "error"
+    }
+  ]
+}
+```
+
+**Rule Types:**
+- `require-signed` - Require cryptographically signed servers
+- `require-residency` - Enforce data residency (`us-only`, `eu-only`, `any`)
+- `require-sensitivity` - Set minimum sensitivity level
+- `forbid-server` - Block specific server IDs
+- `allow-server` - Explicitly allow specific servers
 
 ## Project Structure
 
@@ -89,7 +197,11 @@ Options:
 │   ├── core/            # Pure deterministic resolver logic
 │   └── cli/             # Commander CLI with filesystem wiring
 ├── examples/
-│   └── hello-agent/     # Working example
+│   └── hello-agent/     # Working example with policies
+├── docs/
+│   ├── DOCUMENTATION.md # Comprehensive usage guide
+│   ├── EXTENSION-SPEC.md
+│   └── ALTERNATIVE-APPROACHES.md
 └── .github/
     └── workflows/       # CI configuration
 ```
@@ -104,16 +216,37 @@ A JSON lockfile containing:
 - Endpoints and scopes
 - SHA-256 hashes for integrity verification
 
+```json
+{
+  "version": "1",
+  "agent": {
+    "name": "hello-agent",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "category": "filesystem",
+      "serverId": "acme-fs",
+      "version": "2.1.0",
+      "endpoint": "stdio://acme-fs",
+      "scopes": ["read", "write"],
+      "hash": "sha256:..."
+    }
+  ],
+  "generated": "2025-01-15T10:30:00.000Z"
+}
+```
+
 ### `agents.resolution.json` (with --explain)
 
 Detailed resolution explanation including:
 - Selected servers with selection reasons
 - Rejected candidates with reason codes:
-  - `MISSING_CATEGORY`
-  - `MISSING_SCOPE`
-  - `RESIDENCY_MISMATCH`
-  - `SENSITIVITY_EXCEEDED`
-  - `UNSIGNED_NOT_ALLOWED`
+  - `MISSING_CATEGORY` - Server lacks required category
+  - `MISSING_SCOPE` - Server doesn't support required permission
+  - `RESIDENCY_MISMATCH` - Incompatible data residency
+  - `SENSITIVITY_EXCEEDED` - Agent sensitivity too high for server
+  - `UNSIGNED_NOT_ALLOWED` - Unsigned server rejected by policy
 
 ## Resolution Rules
 
@@ -128,6 +261,7 @@ For each MCP requirement:
 Servers are rejected if:
 - Residency is incompatible (e.g., `us-only` agent rejects `eu-only` server)
 - Agent sensitivity exceeds server's `maxSensitivity`
+- Policy rules forbid the server
 
 ### Deterministic Tie-Breaking
 
@@ -147,7 +281,17 @@ npm run build
 
 # Clean build artifacts
 npm run clean
+
+# Lint code
+npm run lint
 ```
+
+## Documentation
+
+For comprehensive documentation, see:
+- [Full Documentation](docs/DOCUMENTATION.md) - Complete usage guide
+- [Extension Spec](docs/EXTENSION-SPEC.md) - Enterprise extension architecture
+- [Alternative Approaches](docs/ALTERNATIVE-APPROACHES.md) - Design decisions
 
 ## License
 
