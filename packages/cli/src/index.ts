@@ -3,6 +3,9 @@ import { Command } from 'commander';
 import { validateCommand } from './commands/validate.js';
 import { discoverCommand } from './commands/discover.js';
 import { resolveCommand } from './commands/resolve.js';
+import { syncCommand, syncStatusCommand } from './commands/sync.js';
+import { policyCommand } from './commands/policy.js';
+import { configCommand } from './commands/config.js';
 
 const program = new Command();
 
@@ -14,5 +17,11 @@ program
 program.addCommand(validateCommand);
 program.addCommand(discoverCommand);
 program.addCommand(resolveCommand);
+program.addCommand(syncCommand);
+program.addCommand(policyCommand);
+program.addCommand(configCommand);
+
+// Add sync status as subcommand
+syncCommand.addCommand(syncStatusCommand);
 
 program.parse();
