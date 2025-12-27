@@ -1,0 +1,80 @@
+[
+  {
+    "id": "acme-audiences",
+    "version": "2.1.0",
+    "endpoint": "https://mcp.acme.com/audiences",
+    "categories": ["audiences"],
+    "scopes": ["read:audiences", "write:audiences", "delete:audiences"],
+    "data": {
+      "residency": ["us-only", "eu-only"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Acme Corp"
+    },
+    "policy": {
+      "rateLimitPerMin": 100
+    }
+  },
+  {
+    "id": "beta-audiences",
+    "version": "1.0.0",
+    "endpoint": "https://mcp.beta.io/audiences",
+    "categories": ["audiences"],
+    "scopes": ["read:audiences", "write:audiences"],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "internal"
+    },
+    "trust": {
+      "signed": false,
+      "publisher": "Beta Inc"
+    }
+  },
+  {
+    "id": "acme-reporting",
+    "version": "3.0.0",
+    "endpoint": "https://mcp.acme.com/reporting",
+    "categories": ["reporting", "analytics"],
+    "scopes": ["read:reports", "write:reports", "read:dashboards"],
+    "data": {
+      "residency": ["us-only"],
+      "maxSensitivity": "pii.low"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Acme Corp"
+    }
+  },
+  {
+    "id": "gamma-reporting",
+    "version": "1.5.0",
+    "endpoint": "https://mcp.gamma.net/reports",
+    "categories": ["reporting"],
+    "scopes": ["read:reports"],
+    "data": {
+      "residency": ["eu-only"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Gamma Ltd"
+    }
+  },
+  {
+    "id": "delta-analytics",
+    "version": "2.0.0",
+    "endpoint": "https://mcp.delta.com/analytics",
+    "categories": ["analytics"],
+    "scopes": ["read:metrics", "write:metrics"],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "public"
+    },
+    "trust": {
+      "signed": false,
+      "publisher": "Delta Systems"
+    }
+  }
+]

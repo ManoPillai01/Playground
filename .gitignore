@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+coverage/
+.env
+*.tgz
+
+# Generated files
+agents.lock
+agents.resolution.json
