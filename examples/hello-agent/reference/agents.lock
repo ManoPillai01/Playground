@@ -1,0 +1,28 @@
+{
+  "agentName": "hello-agent",
+  "agentVersion": "1.0.0",
+  "resolvedAt": "TIMESTAMP",
+  "servers": [
+    {
+      "category": "audiences",
+      "serverId": "acme-audiences",
+      "version": "2.1.0",
+      "endpoint": "https://mcp.acme.com/audiences",
+      "scopes": [
+        "read:audiences",
+        "write:audiences"
+      ],
+      "hash": "a5cdac3f506074eb4b3fcfa82d590b88c6fa2a0e7d804efe2bbf82dcb7dc8816"
+    },
+    {
+      "category": "reporting",
+      "serverId": "acme-reporting",
+      "version": "3.0.0",
+      "endpoint": "https://mcp.acme.com/reporting",
+      "scopes": [
+        "read:reports"
+      ],
+      "hash": "8c083ef9140aeff3feae1b5d22cafb17c54ed2e4ebff317b13723f65f27ddaf8"
+    }
+  ]
+}

@@ -6,6 +6,8 @@ coverage/
 .env
 *.tgz
 
-# Generated files
+# Generated files (except reference implementations)
 agents.lock
 agents.resolution.json
+!**/reference/agents.lock
+!**/reference/agents.resolution.json
