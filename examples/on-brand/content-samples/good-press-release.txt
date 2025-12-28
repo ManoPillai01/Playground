@@ -1,0 +1,14 @@
+Acme Corp Announces New Enterprise Security Features
+
+Today, we're excited to share significant enhancements to our enterprise platform's security capabilities. These updates reflect our commitment to helping organizations protect their most valuable assets.
+
+Key highlights include:
+- End-to-end encryption for all data in transit and at rest
+- Advanced threat detection powered by machine learning
+- Simplified compliance reporting for SOC 2 and GDPR requirements
+
+"Security isn't just a feature—it's foundational to everything we build," said our Chief Technology Officer. "These enhancements help our customers stay ahead of evolving security challenges."
+
+The new features are available immediately for all Enterprise tier customers at no additional cost.
+
+For more information, visit our security documentation or contact our enterprise team.

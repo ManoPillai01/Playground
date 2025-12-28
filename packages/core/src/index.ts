@@ -3,3 +3,4 @@ export * from './hash.js';
 export * from './validate.js';
 export * from './federation.js';
 export * from './policy.js';
+export * from './brand-checker.js';
