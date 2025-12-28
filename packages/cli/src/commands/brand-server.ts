@@ -1,6 +1,8 @@
 import { Command } from 'commander';
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { readFileSync, existsSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import {
   createBrandCheckResponse,
   createAuditEntry,
@@ -16,6 +18,11 @@ import {
 const DEFAULT_PROFILE_PATH = './brand-profile.json';
 const DEFAULT_CONFIG_PATH = './.brandrc.json';
 const DEFAULT_AUDIT_PATH = './brand-audit.json';
+
+// Get the directory of the current module for serving UI files
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const UI_DIR = join(__dirname, '..', 'ui');
 
 /**
  * Read and parse JSON file
@@ -108,9 +115,46 @@ function sendJson(res: ServerResponse, statusCode: number, data: unknown): void 
 }
 
 /**
+ * Get MIME type for file extension
+ */
+function getMimeType(filePath: string): string {
+  const ext = filePath.split('.').pop()?.toLowerCase();
+  const mimeTypes: Record<string, string> = {
+    html: 'text/html',
+    js: 'application/javascript',
+    css: 'text/css',
+    json: 'application/json',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    svg: 'image/svg+xml',
+  };
+  return mimeTypes[ext || ''] || 'application/octet-stream';
+}
+
+/**
+ * Serve a static file
+ */
+function serveStaticFile(res: ServerResponse, filePath: string): boolean {
+  if (!existsSync(filePath)) {
+    return false;
+  }
+  try {
+    const content = readFileSync(filePath);
+    res.writeHead(200, {
+      'Content-Type': getMimeType(filePath),
+      'Cache-Control': 'public, max-age=3600',
+    });
+    res.end(content);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Create the HTTP request handler
  */
-function createHandler(profilePath: string, config: BrandConfig) {
+function createHandler(profilePath: string, config: BrandConfig, enableUI: boolean) {
   // Pre-load profile for validation
   let profile: BrandProfile;
   try {
@@ -129,11 +173,27 @@ function createHandler(profilePath: string, config: BrandConfig) {
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
       });
       res.end();
       return;
+    }
+
+    // Serve UI files if enabled
+    if (enableUI && req.method === 'GET') {
+      // Serve index.html for root
+      if (url.pathname === '/' || url.pathname === '/index.html') {
+        if (serveStaticFile(res, join(UI_DIR, 'index.html'))) {
+          return;
+        }
+      }
+      // Serve SDK JS file
+      if (url.pathname === '/on-brand-sdk.js') {
+        if (serveStaticFile(res, join(UI_DIR, 'on-brand-sdk.js'))) {
+          return;
+        }
+      }
     }
 
     // Health check
@@ -236,9 +296,11 @@ export const brandServeCommand = new Command('serve')
   .option('-p, --profile <path>', 'Path to brand profile', DEFAULT_PROFILE_PATH)
   .option('--port <number>', 'Server port', '3000')
   .option('--host <string>', 'Server host', 'localhost')
+  .option('--ui', 'Enable web UI at root path')
   .action((options) => {
     const port = parseInt(options.port, 10);
     const host = options.host;
+    const enableUI = !!options.ui;
     const config = loadBrandConfig();
 
     // Check if profile exists
@@ -248,15 +310,21 @@ export const brandServeCommand = new Command('serve')
       process.exit(1);
     }
 
-    const handler = createHandler(options.profile, config);
+    const handler = createHandler(options.profile, config, enableUI);
     const server = createServer(handler);
 
     server.listen(port, host, () => {
       console.log(`\n🚀 Brand Check API Server running at http://${host}:${port}`);
       console.log('\nEndpoints:');
+      if (enableUI) {
+        console.log(`  GET  http://${host}:${port}/          (Web UI)`);
+      }
       console.log(`  POST http://${host}:${port}/on-brand/check`);
       console.log(`  GET  http://${host}:${port}/health`);
-      console.log('\nExample request:');
+      if (!enableUI) {
+        console.log('\nTip: Add --ui flag to enable the web interface');
+      }
+      console.log('\nExample API request:');
       console.log(`  curl -X POST http://${host}:${port}/on-brand/check \\`);
       console.log('    -H "Content-Type: application/json" \\');
       console.log('    -d \'{"content": "Your content to check"}\'');

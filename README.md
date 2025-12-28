@@ -139,14 +139,34 @@ agent brand check --content "Your marketing copy here"
 # Check content from file
 agent brand check --file ./ad-copy.txt
 
-# Start API server
-agent brand serve --port 3000
+# Start API server with web UI
+agent brand serve --port 3000 --ui
 
-# Check via API
+# Open http://localhost:3000 in your browser
+
+# Or check via API
 curl -X POST http://localhost:3000/on-brand/check \
   -H "Content-Type: application/json" \
   -d '{"content": "Your content to check"}'
 ```
+
+#### Web UI Integration
+
+The brand checker includes a JavaScript SDK for easy integration:
+
+```html
+<script src="http://localhost:3000/on-brand-sdk.js"></script>
+<script>
+  // API client
+  const client = new OnBrandClient('http://localhost:3000');
+  const result = await client.check('Your content');
+
+  // Or use the embeddable widget
+  new OnBrandWidget('#container', { apiUrl: 'http://localhost:3000' });
+</script>
+```
+
+See [UI Integration Guide](docs/UI-INTEGRATION.md) for full documentation.
 
 #### Brand Check Response
 
@@ -349,6 +369,7 @@ npm run lint
 
 For comprehensive documentation, see:
 - [Full Documentation](docs/DOCUMENTATION.md) - Complete usage guide
+- [UI Integration Guide](docs/UI-INTEGRATION.md) - Brand checker UI patterns
 - [Extension Spec](docs/EXTENSION-SPEC.md) - Enterprise extension architecture
 - [Alternative Approaches](docs/ALTERNATIVE-APPROACHES.md) - Design decisions
 

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>On Brand - Brand Consistency Checker</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --success: #16a34a;
+      --warning: #d97706;
+      --error: #dc2626;
+      --bg: #f9fafb;
+      --card-bg: #ffffff;
+      --text: #111827;
+      --text-secondary: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .status-dot.disconnected {
+      background: var(--error);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 16px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    select {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      background: white;
+      cursor: pointer;
+    }
+
+    .char-count {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      padding: 12px 32px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .result {
+      display: none;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .result.visible {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result.on-brand {
+      background: #f0fdf4;
+      border: 1px solid var(--success);
+    }
+
+    .result.borderline {
+      background: #fffbeb;
+      border: 1px solid var(--warning);
+    }
+
+    .result.off-brand {
+      background: #fef2f2;
+      border: 1px solid var(--error);
+    }
+
+    .result-status {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .result.on-brand .result-status { color: var(--success); }
+    .result.borderline .result-status { color: var(--warning); }
+    .result.off-brand .result-status { color: var(--error); }
+
+    .explanations {
+      list-style: none;
+    }
+
+    .explanations li {
+      padding: 8px 0;
+      font-size: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .explanation-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .result-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .keyboard-hint {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    kbd {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: inherit;
+      font-size: 0.8rem;
+    }
+
+    .examples {
+      margin-top: 40px;
+    }
+
+    .examples h2 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+    }
+
+    .example-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .example-btn {
+      padding: 8px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* API Status */
+    .api-config {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 8px;
+    }
+
+    .api-config label {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .api-config input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>On Brand</h1>
+      <p class="subtitle">Paste content. Get instant brand alignment feedback.</p>
+    </header>
+
+    <div class="api-config">
+      <label for="api-url">API URL:</label>
+      <input type="text" id="api-url" value="http://localhost:3000" placeholder="http://localhost:3000">
+      <div class="status-indicator">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Checking...</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Content to Check</span>
+        <span class="char-count"><span id="char-count">0</span> characters</span>
+      </div>
+
+      <textarea
+        id="content"
+        placeholder="Paste your ad copy, social post, press release, or any content here..."
+      ></textarea>
+
+      <div class="controls">
+        <div class="control-group">
+          <select id="content-type">
+            <option value="">Content type (optional)</option>
+            <option value="ad-copy">Ad Copy</option>
+            <option value="social-post">Social Post</option>
+            <option value="influencer-script">Influencer Script</option>
+            <option value="press-release">Press Release</option>
+            <option value="campaign-name">Campaign Name</option>
+            <option value="email">Email</option>
+            <option value="website">Website Copy</option>
+            <option value="ai-generated">AI Generated</option>
+            <option value="other">Other</option>
+          </select>
+          <button class="btn btn-secondary" id="clear-btn">Clear</button>
+        </div>
+        <button class="btn" id="check-btn">
+          <span id="btn-text">Check Brand</span>
+          <span class="spinner" id="spinner" style="display: none;"></span>
+        </button>
+      </div>
+
+      <div class="keyboard-hint">
+        Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to check
+      </div>
+
+      <div class="result" id="result">
+        <div class="result-status" id="result-status"></div>
+        <ul class="explanations" id="explanations"></ul>
+        <div class="result-meta">
+          <span id="confidence"></span>
+          <span id="profile-info"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="examples">
+      <h2>Try an Example</h2>
+      <div class="example-buttons">
+        <button class="example-btn" data-example="good">
+          ✅ On-brand example
+        </button>
+        <button class="example-btn" data-example="borderline">
+          ⚠️ Borderline example
+        </button>
+        <button class="example-btn" data-example="bad">
+          ❌ Off-brand example
+        </button>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        Part of the <a href="#">Agent Resolver</a> toolkit.
+        Start the API server with <code>agent brand serve</code>
+      </p>
+    </footer>
+  </div>
+
+  <script src="on-brand-sdk.js"></script>
+  <script>
+    // Example content
+    const examples = {
+      good: `We're excited to announce new features that help your team collaborate more effectively.
+
+Our latest update focuses on what matters most: making your daily workflow simpler and more intuitive. With enhanced security and seamless integrations, you can focus on what you do best.
+
+Learn more about how we're helping teams succeed at scale.`,
+
+      borderline: `Big news coming soon! 🚀
+
+Our team has been working super hard on something that's going to blow your mind. Can't wait to share more details!
+
+Stay tuned for the reveal! #Innovation #TechNews`,
+
+      bad: `STOP using outdated software from our competitors!
+
+Unlike other solutions that are stuck in the past, we guarantee 500% ROI within 30 days or your money back!!!
+
+Don't miss out - this limited time offer won't last forever. Buy NOW before it's too late!`
+    };
+
+    // DOM elements
+    const apiUrlInput = document.getElementById('api-url');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+    const contentTextarea = document.getElementById('content');
+    const contentTypeSelect = document.getElementById('content-type');
+    const charCount = document.getElementById('char-count');
+    const checkBtn = document.getElementById('check-btn');
+    const btnText = document.getElementById('btn-text');
+    const spinner = document.getElementById('spinner');
+    const clearBtn = document.getElementById('clear-btn');
+    const resultDiv = document.getElementById('result');
+    const resultStatus = document.getElementById('result-status');
+    const explanationsList = document.getElementById('explanations');
+    const confidenceSpan = document.getElementById('confidence');
+    const profileInfo = document.getElementById('profile-info');
+
+    // Initialize client
+    let client = new OnBrandClient(apiUrlInput.value);
+
+    // Update client when URL changes
+    apiUrlInput.addEventListener('change', () => {
+      client = new OnBrandClient(apiUrlInput.value);
+      checkApiHealth();
+    });
+
+    // Check API health
+    async function checkApiHealth() {
+      statusDot.classList.add('disconnected');
+      statusText.textContent = 'Checking...';
+
+      try {
+        const health = await client.health();
+        statusDot.classList.remove('disconnected');
+        statusText.textContent = `Connected (${health.profile.name} v${health.profile.version})`;
+      } catch (error) {
+        statusDot.classList.add('disconnected');
+        statusText.textContent = 'Disconnected';
+      }
+    }
+
+    // Character count
+    contentTextarea.addEventListener('input', () => {
+      charCount.textContent = contentTextarea.value.length;
+    });
+
+    // Clear button
+    clearBtn.addEventListener('click', () => {
+      contentTextarea.value = '';
+      charCount.textContent = '0';
+      resultDiv.classList.remove('visible');
+    });
+
+    // Example buttons
+    document.querySelectorAll('.example-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const exampleType = btn.dataset.example;
+        contentTextarea.value = examples[exampleType];
+        charCount.textContent = contentTextarea.value.length;
+        resultDiv.classList.remove('visible');
+      });
+    });
+
+    // Check brand
+    async function checkBrand() {
+      const content = contentTextarea.value.trim();
+      if (!content) return;
+
+      // Show loading
+      checkBtn.disabled = true;
+      btnText.textContent = 'Checking...';
+      spinner.style.display = 'block';
+      resultDiv.classList.remove('visible');
+
+      try {
+        const response = await client.check(content, {
+          contentType: contentTypeSelect.value || undefined,
+        });
+
+        // Show result
+        resultDiv.className = `result visible ${response.status}`;
+        resultStatus.textContent = response.statusDisplay;
+
+        explanationsList.innerHTML = response.explanations
+          .map(e => {
+            const icon = e.severity === 'critical' ? '❌'
+              : e.severity === 'warning' ? '⚠️' : 'ℹ️';
+            return `<li><span class="explanation-icon">${icon}</span> ${e.text}</li>`;
+          })
+          .join('');
+
+        confidenceSpan.textContent = response.confidence !== undefined
+          ? `Confidence: ${response.confidence}%`
+          : '';
+
+        profileInfo.textContent = `Profile v${response.profileVersion}`;
+
+      } catch (error) {
+        resultDiv.className = 'result visible off-brand';
+        resultStatus.textContent = 'Error ❌';
+        explanationsList.innerHTML = `<li><span class="explanation-icon">❌</span> ${error.message}</li>`;
+        confidenceSpan.textContent = '';
+        profileInfo.textContent = '';
+      } finally {
+        checkBtn.disabled = false;
+        btnText.textContent = 'Check Brand';
+        spinner.style.display = 'none';
+      }
+    }
+
+    // Event listeners
+    checkBtn.addEventListener('click', checkBrand);
+
+    contentTextarea.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        checkBrand();
+      }
+    });
+
+    // Initial health check
+    checkApiHealth();
+
+    // Periodic health check
+    setInterval(checkApiHealth, 30000);
+  </script>
+</body>
+</html>
