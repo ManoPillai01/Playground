@@ -1,0 +1,171 @@
+{
+  "id": "adcp-mcp-routing-policy",
+  "name": "AdCP/MCP Protocol Routing Policy",
+  "version": "1.0.0",
+  "description": "Defines intelligent routing between AdCP and MCP protocols for advertising workflows",
+  "priority": 100,
+  "rules": [
+    {
+      "id": "prefer-adcp-for-signals",
+      "type": "protocol-preference",
+      "category": "ad-signals",
+      "preferredProtocol": "adcp",
+      "fallbackProtocol": "mcp",
+      "severity": "warning",
+      "message": "Prefer AdCP Signals Activation Protocol for audience activation workflows",
+      "rationale": "AdCP provides native signals activation with better workflow integration"
+    },
+    {
+      "id": "prefer-adcp-for-media-buy",
+      "type": "protocol-preference",
+      "category": "ad-media-buy",
+      "preferredProtocol": "adcp",
+      "fallbackProtocol": "mcp",
+      "severity": "warning",
+      "message": "Prefer AdCP Media Buy Protocol for programmatic buying",
+      "rationale": "AdCP Media Buy Protocol designed for programmatic workflows"
+    },
+    {
+      "id": "prefer-mcp-for-analytics",
+      "type": "protocol-preference",
+      "category": "ad-analytics",
+      "preferredProtocol": "mcp",
+      "fallbackProtocol": "adcp",
+      "severity": "info",
+      "message": "Prefer MCP for analytics (more mature implementations)",
+      "rationale": "Google Analytics and AppsFlyer MCP servers have established, read-only APIs"
+    },
+    {
+      "id": "prefer-adcp-for-creative",
+      "type": "protocol-preference",
+      "category": "ad-creative",
+      "preferredProtocol": "adcp",
+      "fallbackProtocol": "mcp",
+      "severity": "warning",
+      "message": "Prefer AdCP Creative Protocol for ad creative management",
+      "rationale": "AdCP Creative Protocol tailored for advertising creative workflows"
+    },
+    {
+      "id": "require-signed-production",
+      "type": "require-signed",
+      "value": true,
+      "severity": "error",
+      "message": "All production advertising servers must be cryptographically signed",
+      "rationale": "Advertising data is sensitive; trust verification is mandatory"
+    },
+    {
+      "id": "minimum-sensitivity-internal",
+      "type": "require-sensitivity",
+      "value": "internal",
+      "severity": "error",
+      "message": "Advertising servers must support at least 'internal' sensitivity level",
+      "rationale": "Advertising data often contains business-sensitive information"
+    }
+  ],
+  "platformCapabilities": {
+    "adcp": {
+      "version": "2.5.0",
+      "modules": [
+        "signals-activation",
+        "media-buy",
+        "creative",
+        "curation"
+      ],
+      "platforms": [
+        "scope3-adcp",
+        "yahoo-adcp",
+        "pubmatic-adcp",
+        "optable-adcp",
+        "swivel-adcp",
+        "triton-digital-adcp",
+        "magnite-adcp",
+        "samba-tv-adcp",
+        "the-weather-company-adcp"
+      ],
+      "launchDate": "2025-10-15",
+      "consortium": [
+        "Yahoo",
+        "PubMatic",
+        "Scope3",
+        "Optable",
+        "Swivel",
+        "Triton Digital"
+      ]
+    },
+    "mcp": {
+      "version": "1.0.0",
+      "platforms": [
+        "google-ads-mcp",
+        "google-analytics-mcp",
+        "appsflyer-mcp"
+      ],
+      "adoptionTimeline": {
+        "google-analytics-mcp": "2025-07-22",
+        "appsflyer-mcp": "2025-07-17",
+        "google-ads-mcp": "2025-10-07"
+      }
+    }
+  },
+  "routingMatrix": {
+    "ad-signals": {
+      "primary": "adcp",
+      "reason": "Native signals activation protocol",
+      "preferredServers": ["scope3-adcp", "yahoo-adcp", "optable-adcp"]
+    },
+    "ad-media-buy": {
+      "primary": "adcp",
+      "reason": "Purpose-built programmatic buying",
+      "preferredServers": ["yahoo-adcp", "pubmatic-adcp", "swivel-adcp"]
+    },
+    "ad-analytics": {
+      "primary": "mcp",
+      "reason": "Mature read-only APIs from Google and AppsFlyer",
+      "preferredServers": ["google-analytics-mcp", "appsflyer-mcp", "google-ads-mcp"]
+    },
+    "ad-creative": {
+      "primary": "adcp",
+      "reason": "Advertising-specific creative workflows",
+      "preferredServers": ["triton-digital-adcp", "magnite-adcp"]
+    }
+  },
+  "constraints": {
+    "trustRequirements": {
+      "requireSigned": true,
+      "allowedPublishers": [
+        "Scope3 Inc",
+        "Yahoo Inc",
+        "PubMatic Inc",
+        "Optable Technologies Inc",
+        "Google LLC",
+        "AppsFlyer Ltd",
+        "Swivel Inc",
+        "Triton Digital",
+        "Magnite Inc",
+        "Samba TV Inc",
+        "The Weather Company (IBM)"
+      ]
+    },
+    "dataGovernance": {
+      "minimumSensitivity": "internal",
+      "allowedResidencies": ["any", "us-only", "eu-only"],
+      "forbiddenActions": ["delete:campaigns", "write:billing"]
+    },
+    "protocolVersions": {
+      "adcp": {
+        "minimum": "2.5.0",
+        "preferred": "2.5.0"
+      },
+      "mcp": {
+        "minimum": "1.0.0",
+        "preferred": "1.0.0"
+      }
+    }
+  },
+  "metadata": {
+    "author": "Advertising Operations Team",
+    "organization": "Example Corporation",
+    "effectiveDate": "2025-12-28",
+    "reviewCycle": "quarterly",
+    "compliance": ["SOC2", "GDPR", "CCPA"]
+  }
+}
