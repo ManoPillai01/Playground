@@ -9,5 +9,6 @@ coverage/
 # Generated files (except reference implementations)
 agents.lock
 agents.resolution.json
+brand-audit.json
 !**/reference/agents.lock
 !**/reference/agents.resolution.json
