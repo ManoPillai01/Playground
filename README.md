@@ -168,6 +168,32 @@ The brand checker includes a JavaScript SDK for easy integration:
 
 See [UI Integration Guide](docs/UI-INTEGRATION.md) for full documentation.
 
+#### CrewAI Agent (Python)
+
+A Python/CrewAI implementation is also available for multi-agent workflows:
+
+```bash
+# Install
+cd packages/crewai-agent
+pip install -e .
+
+# Check content
+on-brand-crew check "Your content" -p ./brand-profile.json
+
+# Start API server
+on-brand-crew serve --port 3001
+```
+
+```python
+from on_brand_crew import SimpleBrandChecker
+
+checker = SimpleBrandChecker("./brand-profile.json")
+result = checker.check("Your marketing copy")
+print(result["statusDisplay"])  # "On Brand ✅"
+```
+
+See [CrewAI Agent README](packages/crewai-agent/README.md) for full documentation.
+
 #### Brand Check Response
 
 The brand checker returns:
@@ -273,12 +299,14 @@ Define organizational policies to enforce constraints:
 ├── packages/
 │   ├── schema/          # Zod schemas for validation
 │   ├── core/            # Pure deterministic resolver logic
-│   └── cli/             # Commander CLI with filesystem wiring
+│   ├── cli/             # Commander CLI with filesystem wiring
+│   └── crewai-agent/    # CrewAI Python agent for brand checking
 ├── examples/
 │   ├── hello-agent/     # Working example with policies
 │   └── on-brand/        # Brand consistency checker example
 ├── docs/
 │   ├── DOCUMENTATION.md # Comprehensive usage guide
+│   ├── UI-INTEGRATION.md
 │   ├── EXTENSION-SPEC.md
 │   └── ALTERNATIVE-APPROACHES.md
 └── .github/

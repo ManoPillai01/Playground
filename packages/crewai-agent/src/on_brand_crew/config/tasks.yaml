@@ -1,0 +1,93 @@
+# Task definitions for On Brand Crew
+
+check_brand_consistency:
+  description: >
+    Analyze the following content for brand consistency:
+
+    ---
+    {content}
+    ---
+
+    Use the brand profile at: {profile_path}
+
+    Evaluate the content against:
+    1. Brand values - Does the content reflect the brand's core values?
+    2. Voice descriptors - Does the tone match the brand's voice?
+    3. Tone boundaries - Are there any unacceptable tone elements?
+    4. Never rules - Does the content violate any "never do/say" rules?
+    5. Examples - How similar is it to known good or bad examples?
+
+    Determine if the content is:
+    - ON-BRAND: Aligns well with brand guidelines
+    - BORDERLINE: Acceptable but could be improved
+    - OFF-BRAND: Violates brand guidelines
+
+  expected_output: >
+    A brand check result containing:
+    - Status: on-brand, borderline, or off-brand
+    - Status display with emoji indicator
+    - 1-3 explanation bullet points (focused on "why", not "how to fix")
+    - Confidence score (0-100)
+    - Profile version used
+    - Content hash for audit purposes
+
+  agent: brand_analyst
+
+analyze_content_quality:
+  description: >
+    Review the following content for overall quality and effectiveness:
+
+    ---
+    {content}
+    ---
+
+    Consider:
+    - Clarity of message
+    - Engagement potential
+    - Professional tone
+    - Grammar and style
+
+    This is supplementary analysis to support brand consistency checking.
+
+  expected_output: >
+    A brief quality assessment noting any significant concerns that
+    might affect brand perception.
+
+  agent: content_reviewer
+
+record_audit_entry:
+  description: >
+    Record the brand check results for audit purposes:
+
+    Profile: {profile_name} v{profile_version}
+    Content Hash: {content_hash}
+    Status: {status}
+    Confidence: {confidence}
+    Timestamp: {timestamp}
+
+    Ensure the record includes all required fields for compliance.
+
+  expected_output: >
+    Confirmation that the audit entry has been recorded with all
+    required fields.
+
+  agent: audit_recorder
+
+batch_brand_check:
+  description: >
+    Perform brand consistency checks on multiple content items:
+
+    {content_items}
+
+    Use the brand profile at: {profile_path}
+
+    Check each item and provide a summary of results.
+
+  expected_output: >
+    A summary report containing:
+    - Total items checked
+    - Count by status (on-brand, borderline, off-brand)
+    - List of any items requiring attention
+    - Overall brand health score
+
+  agent: brand_analyst
