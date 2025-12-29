@@ -115,6 +115,84 @@ agent config show              # Show current configuration
 agent config path              # Show config file path
 ```
 
+### `agent brand`
+
+Brand consistency checker - evaluates content against your brand profile.
+
+```bash
+agent brand init               # Create a brand profile
+agent brand check              # Check content against brand profile
+agent brand profile            # View brand profile details
+agent brand audit              # View brand check audit log
+agent brand serve              # Start the brand check API server
+```
+
+#### Quick Start
+
+```bash
+# Initialize a brand profile
+agent brand init --name "My Brand"
+
+# Check content via CLI
+agent brand check --content "Your marketing copy here"
+
+# Check content from file
+agent brand check --file ./ad-copy.txt
+
+# Start API server with web UI
+agent brand serve --port 3000 --ui
+
+# Open http://localhost:3000 in your browser
+
+# Or check via API
+curl -X POST http://localhost:3000/on-brand/check \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Your content to check"}'
+```
+
+#### Web UI Integration
+
+The brand checker includes a JavaScript SDK for easy integration:
+
+```html
+<script src="http://localhost:3000/on-brand-sdk.js"></script>
+<script>
+  // API client
+  const client = new OnBrandClient('http://localhost:3000');
+  const result = await client.check('Your content');
+
+  // Or use the embeddable widget
+  new OnBrandWidget('#container', { apiUrl: 'http://localhost:3000' });
+</script>
+```
+
+See [UI Integration Guide](docs/UI-INTEGRATION.md) for full documentation.
+
+#### Brand Check Response
+
+The brand checker returns:
+- **Status**: `On Brand ✅` | `Borderline ⚠️` | `Off Brand ❌`
+- **Explanations**: 1-3 bullet points explaining why
+- **Confidence Score**: 0-100 (optional)
+
+#### Brand Profile Structure
+
+```json
+{
+  "name": "My Brand",
+  "version": "1.0.0",
+  "values": ["Quality", "Innovation", "Trust"],
+  "voiceDescriptors": ["professional", "friendly", "clear"],
+  "toneAcceptable": ["helpful", "encouraging"],
+  "toneUnacceptable": ["aggressive", "condescending"],
+  "neverRules": ["competitor names", "profanity"],
+  "examples": [
+    { "content": "Good example...", "type": "good" },
+    { "content": "Bad example...", "type": "bad" }
+  ]
+}
+```
+
 ## Configuration
 
 Create a `.agentrc.json` file to configure registries, policies, and defaults:
@@ -197,7 +275,8 @@ Define organizational policies to enforce constraints:
 │   ├── core/            # Pure deterministic resolver logic
 │   └── cli/             # Commander CLI with filesystem wiring
 ├── examples/
-│   └── hello-agent/     # Working example with policies
+│   ├── hello-agent/     # Working example with policies
+│   └── on-brand/        # Brand consistency checker example
 ├── docs/
 │   ├── DOCUMENTATION.md # Comprehensive usage guide
 │   ├── EXTENSION-SPEC.md
@@ -290,6 +369,7 @@ npm run lint
 
 For comprehensive documentation, see:
 - [Full Documentation](docs/DOCUMENTATION.md) - Complete usage guide
+- [UI Integration Guide](docs/UI-INTEGRATION.md) - Brand checker UI patterns
 - [Extension Spec](docs/EXTENSION-SPEC.md) - Enterprise extension architecture
 - [Alternative Approaches](docs/ALTERNATIVE-APPROACHES.md) - Design decisions
 

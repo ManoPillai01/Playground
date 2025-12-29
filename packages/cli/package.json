@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r src/ui dist/",
     "clean": "rm -rf dist"
   },
   "dependencies": {

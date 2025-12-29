@@ -1,0 +1,68 @@
+{
+  "name": "Acme Corp",
+  "version": "1.0.0",
+  "description": "Acme Corp is a premium B2B software company focused on enterprise solutions",
+  "values": [
+    "Innovation",
+    "Reliability",
+    "Security",
+    "Customer Success",
+    "Transparency"
+  ],
+  "voiceDescriptors": [
+    "professional",
+    "confident",
+    "clear",
+    "helpful",
+    "authoritative"
+  ],
+  "toneAcceptable": [
+    "informative",
+    "encouraging",
+    "solution-oriented",
+    "empathetic"
+  ],
+  "toneUnacceptable": [
+    "aggressive",
+    "condescending",
+    "pushy",
+    "dismissive",
+    "casual slang"
+  ],
+  "neverRules": [
+    "competitor names",
+    "guaranteed results",
+    "profanity",
+    "unverified statistics",
+    "fear-based messaging"
+  ],
+  "examples": [
+    {
+      "content": "Our enterprise platform helps teams collaborate securely, with end-to-end encryption and SOC 2 compliance built in.",
+      "type": "good",
+      "note": "Professional, focuses on security value proposition"
+    },
+    {
+      "content": "We understand the challenges of scaling infrastructure. Our solution grows with you, ensuring reliability at every stage.",
+      "type": "good",
+      "note": "Empathetic, solution-oriented"
+    },
+    {
+      "content": "Transform your workflow with intelligent automation that your team will actually use.",
+      "type": "good",
+      "note": "Clear, helpful, focuses on practical value"
+    },
+    {
+      "content": "Unlike our competitors who are stuck in the past, we're the only modern solution!",
+      "type": "bad",
+      "note": "Mentions competitors, aggressive tone"
+    },
+    {
+      "content": "Buy now or miss out! This deal won't last forever!!!",
+      "type": "bad",
+      "note": "Pushy, fear-based, unprofessional punctuation"
+    }
+  ],
+  "createdAt": "2024-01-15T10:00:00.000Z",
+  "updatedAt": "2024-01-15T10:00:00.000Z"
+}
