@@ -1,0 +1,54 @@
+{
+  "agentName": "adcp-mcp-router",
+  "agentVersion": "1.0.0",
+  "resolvedAt": "2025-12-28T19:53:06.289Z",
+  "servers": [
+    {
+      "category": "ad-analytics",
+      "serverId": "appsflyer-mcp",
+      "version": "1.0.0",
+      "endpoint": "stdio://appsflyer-mcp",
+      "scopes": [
+        "read:campaigns",
+        "read:metrics",
+        "read:reports"
+      ],
+      "hash": "b1dbae7073c90ef486ceb34973e906211fc862a556822ef00c4dc8f5561ae807"
+    },
+    {
+      "category": "ad-creative",
+      "serverId": "magnite-adcp",
+      "version": "2.5.0",
+      "endpoint": "https://adcp.magnite.com/mcp",
+      "scopes": [
+        "read:creatives",
+        "write:creatives"
+      ],
+      "hash": "c7bb25865b6b1939ce3b6e1d0a41a4a5fe310930df4959ca9fb8e3d10cab07cd"
+    },
+    {
+      "category": "ad-media-buy",
+      "serverId": "pubmatic-adcp",
+      "version": "2.5.0",
+      "endpoint": "https://adcp.pubmatic.com/mcp",
+      "scopes": [
+        "create:media-buy",
+        "read:delivery",
+        "read:products"
+      ],
+      "hash": "5c8626b90024aeb038351428be750f6d088c8170190770c4fac9b93f983885a0"
+    },
+    {
+      "category": "ad-signals",
+      "serverId": "optable-adcp",
+      "version": "2.5.0",
+      "endpoint": "https://adcp.optable.co/mcp",
+      "scopes": [
+        "activate:signals",
+        "read:audiences",
+        "write:audiences"
+      ],
+      "hash": "e98e08f22953b32007105e125d08435138ec4e6161c7f7473d05ce51adb233e4"
+    }
+  ]
+}
