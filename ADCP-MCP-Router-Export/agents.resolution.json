@@ -1,0 +1,462 @@
+{
+  "agentName": "adcp-mcp-router",
+  "agentVersion": "1.0.0",
+  "resolvedAt": "2025-12-28T19:53:06.289Z",
+  "success": true,
+  "requirements": [
+    {
+      "category": "ad-analytics",
+      "requiredPermissions": [
+        "read:campaigns",
+        "read:metrics",
+        "read:reports"
+      ],
+      "selected": {
+        "serverId": "appsflyer-mcp",
+        "version": "1.0.0",
+        "endpoint": "stdio://appsflyer-mcp",
+        "scopes": [
+          "read:campaigns",
+          "read:metrics",
+          "read:reports"
+        ],
+        "selectionReason": "Selected by tie-break: signed, id='appsflyer-mcp'"
+      },
+      "rejected": [
+        {
+          "serverId": "google-ads-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Not selected: lost tie-break to 'appsflyer-mcp@1.0.0'"
+          }
+        },
+        {
+          "serverId": "google-analytics-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Not selected: lost tie-break to 'appsflyer-mcp@1.0.0'"
+          }
+        },
+        {
+          "serverId": "magnite-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "optable-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "pubmatic-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "samba-tv-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "scope3-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "swivel-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "the-weather-company-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "triton-digital-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        },
+        {
+          "serverId": "yahoo-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-analytics'"
+          }
+        }
+      ],
+      "constraintsApplied": {
+        "residency": "any",
+        "sensitivity": "confidential",
+        "requireSigned": null
+      }
+    },
+    {
+      "category": "ad-creative",
+      "requiredPermissions": [
+        "read:creatives",
+        "write:creatives"
+      ],
+      "selected": {
+        "serverId": "magnite-adcp",
+        "version": "2.5.0",
+        "endpoint": "https://adcp.magnite.com/mcp",
+        "scopes": [
+          "read:creatives",
+          "write:creatives"
+        ],
+        "selectionReason": "Only matching candidate"
+      },
+      "rejected": [
+        {
+          "serverId": "appsflyer-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "google-ads-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "google-analytics-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "optable-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "pubmatic-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "samba-tv-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "scope3-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "swivel-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "the-weather-company-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        },
+        {
+          "serverId": "triton-digital-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "SENSITIVITY_EXCEEDED",
+            "message": "Agent sensitivity 'confidential' exceeds server max 'internal'"
+          }
+        },
+        {
+          "serverId": "yahoo-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-creative'"
+          }
+        }
+      ],
+      "constraintsApplied": {
+        "residency": "any",
+        "sensitivity": "confidential",
+        "requireSigned": null
+      }
+    },
+    {
+      "category": "ad-media-buy",
+      "requiredPermissions": [
+        "create:media-buy",
+        "read:delivery",
+        "read:products"
+      ],
+      "selected": {
+        "serverId": "pubmatic-adcp",
+        "version": "2.5.0",
+        "endpoint": "https://adcp.pubmatic.com/mcp",
+        "scopes": [
+          "create:media-buy",
+          "read:delivery",
+          "read:products"
+        ],
+        "selectionReason": "Selected by tie-break: signed, id='pubmatic-adcp'"
+      },
+      "rejected": [
+        {
+          "serverId": "appsflyer-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "google-ads-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_SCOPE",
+            "message": "Server missing required scopes: read:products"
+          }
+        },
+        {
+          "serverId": "google-analytics-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "magnite-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "optable-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "samba-tv-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "scope3-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "swivel-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "SENSITIVITY_EXCEEDED",
+            "message": "Agent sensitivity 'confidential' exceeds server max 'internal'"
+          }
+        },
+        {
+          "serverId": "the-weather-company-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "triton-digital-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-media-buy'"
+          }
+        },
+        {
+          "serverId": "yahoo-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Not selected: lost tie-break to 'pubmatic-adcp@2.5.0'"
+          }
+        }
+      ],
+      "constraintsApplied": {
+        "residency": "any",
+        "sensitivity": "confidential",
+        "requireSigned": null
+      }
+    },
+    {
+      "category": "ad-signals",
+      "requiredPermissions": [
+        "activate:signals",
+        "read:audiences",
+        "write:audiences"
+      ],
+      "selected": {
+        "serverId": "optable-adcp",
+        "version": "2.5.0",
+        "endpoint": "https://adcp.optable.co/mcp",
+        "scopes": [
+          "activate:signals",
+          "read:audiences",
+          "write:audiences"
+        ],
+        "selectionReason": "Selected by tie-break: signed, id='optable-adcp'"
+      },
+      "rejected": [
+        {
+          "serverId": "appsflyer-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-signals'"
+          }
+        },
+        {
+          "serverId": "google-ads-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-signals'"
+          }
+        },
+        {
+          "serverId": "google-analytics-mcp",
+          "version": "1.0.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-signals'"
+          }
+        },
+        {
+          "serverId": "magnite-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-signals'"
+          }
+        },
+        {
+          "serverId": "pubmatic-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-signals'"
+          }
+        },
+        {
+          "serverId": "samba-tv-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Not selected: lost tie-break to 'optable-adcp@2.5.0'"
+          }
+        },
+        {
+          "serverId": "scope3-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Not selected: lost tie-break to 'optable-adcp@2.5.0'"
+          }
+        },
+        {
+          "serverId": "swivel-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-signals'"
+          }
+        },
+        {
+          "serverId": "the-weather-company-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_SCOPE",
+            "message": "Server missing required scopes: write:audiences"
+          }
+        },
+        {
+          "serverId": "triton-digital-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Server does not support category 'ad-signals'"
+          }
+        },
+        {
+          "serverId": "yahoo-adcp",
+          "version": "2.5.0",
+          "reason": {
+            "code": "MISSING_CATEGORY",
+            "message": "Not selected: lost tie-break to 'optable-adcp@2.5.0'"
+          }
+        }
+      ],
+      "constraintsApplied": {
+        "residency": "any",
+        "sensitivity": "confidential",
+        "requireSigned": null
+      }
+    }
+  ]
+}

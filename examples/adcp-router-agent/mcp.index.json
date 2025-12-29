@@ -1,0 +1,331 @@
+[
+  {
+    "id": "scope3-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.scope3.com/mcp",
+    "categories": ["ad-signals", "sustainability"],
+    "scopes": [
+      "read:audiences",
+      "write:audiences",
+      "activate:signals",
+      "read:carbon-metrics"
+    ],
+    "data": {
+      "residency": ["us-only", "eu-only"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Scope3 Inc"
+    },
+    "policy": {
+      "rateLimitPerMin": 1000
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["signals-activation"]
+  },
+  {
+    "id": "yahoo-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.yahoo.com/mcp",
+    "categories": ["ad-signals", "ad-media-buy", "dsp"],
+    "scopes": [
+      "read:audiences",
+      "write:audiences",
+      "activate:signals",
+      "read:products",
+      "create:media-buy",
+      "read:delivery",
+      "read:inventory"
+    ],
+    "data": {
+      "residency": ["us-only", "eu-only"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Yahoo Inc"
+    },
+    "policy": {
+      "rateLimitPerMin": 2000
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["signals-activation", "media-buy"]
+  },
+  {
+    "id": "pubmatic-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.pubmatic.com/mcp",
+    "categories": ["ad-media-buy", "ssp", "supply"],
+    "scopes": [
+      "read:products",
+      "create:media-buy",
+      "read:delivery",
+      "read:inventory",
+      "read:supply"
+    ],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "PubMatic Inc"
+    },
+    "policy": {
+      "rateLimitPerMin": 1500
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["media-buy"]
+  },
+  {
+    "id": "optable-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.optable.co/mcp",
+    "categories": ["ad-signals", "data-clean-room"],
+    "scopes": [
+      "read:audiences",
+      "write:audiences",
+      "activate:signals",
+      "read:segments"
+    ],
+    "data": {
+      "residency": ["us-only", "eu-only"],
+      "maxSensitivity": "pii.moderate"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Optable Technologies Inc"
+    },
+    "policy": {
+      "rateLimitPerMin": 800
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["signals-activation"]
+  },
+  {
+    "id": "google-ads-mcp",
+    "version": "1.0.0",
+    "endpoint": "stdio://google-ads-mcp",
+    "categories": ["ad-media-buy", "ad-analytics", "search-ads"],
+    "scopes": [
+      "read:campaigns",
+      "write:campaigns",
+      "read:ads",
+      "write:ads",
+      "read:metrics",
+      "read:reports",
+      "create:media-buy",
+      "read:delivery"
+    ],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Google LLC"
+    },
+    "policy": {
+      "rateLimitPerMin": 10000
+    },
+    "protocol": "mcp",
+    "mcpVersion": "1.0.0",
+    "releaseDate": "2025-10-07"
+  },
+  {
+    "id": "google-analytics-mcp",
+    "version": "1.0.0",
+    "endpoint": "stdio://google-analytics-mcp",
+    "categories": ["ad-analytics", "analytics", "reporting"],
+    "scopes": [
+      "read:reports",
+      "read:metrics",
+      "read:dashboards",
+      "read:campaigns",
+      "read:conversions"
+    ],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "pii.moderate"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Google LLC"
+    },
+    "policy": {
+      "rateLimitPerMin": 5000
+    },
+    "protocol": "mcp",
+    "mcpVersion": "1.0.0",
+    "releaseDate": "2025-07-22",
+    "accessMode": "read-only"
+  },
+  {
+    "id": "appsflyer-mcp",
+    "version": "1.0.0",
+    "endpoint": "stdio://appsflyer-mcp",
+    "categories": ["ad-analytics", "attribution", "mobile-measurement"],
+    "scopes": [
+      "read:reports",
+      "read:metrics",
+      "read:attribution",
+      "read:campaigns",
+      "read:audiences",
+      "read:cohorts"
+    ],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "pii.moderate"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "AppsFlyer Ltd"
+    },
+    "policy": {
+      "rateLimitPerMin": 3000
+    },
+    "protocol": "mcp",
+    "mcpVersion": "1.0.0",
+    "releaseDate": "2025-07-17"
+  },
+  {
+    "id": "swivel-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.swivel.io/mcp",
+    "categories": ["ad-media-buy", "planning"],
+    "scopes": [
+      "read:products",
+      "create:media-buy",
+      "read:delivery",
+      "read:plans",
+      "write:plans"
+    ],
+    "data": {
+      "residency": ["us-only"],
+      "maxSensitivity": "internal"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Swivel Inc"
+    },
+    "policy": {
+      "rateLimitPerMin": 600
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["media-buy"]
+  },
+  {
+    "id": "triton-digital-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.tritondigital.com/mcp",
+    "categories": ["ad-creative", "audio", "streaming"],
+    "scopes": [
+      "read:creatives",
+      "write:creatives",
+      "read:audio-ads",
+      "write:audio-ads",
+      "read:streaming-inventory"
+    ],
+    "data": {
+      "residency": ["us-only", "eu-only"],
+      "maxSensitivity": "internal"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Triton Digital"
+    },
+    "policy": {
+      "rateLimitPerMin": 1000
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["creative"]
+  },
+  {
+    "id": "magnite-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.magnite.com/mcp",
+    "categories": ["ad-creative", "ssp", "ctv"],
+    "scopes": [
+      "read:creatives",
+      "write:creatives",
+      "read:inventory",
+      "read:products",
+      "read:ctv-inventory"
+    ],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Magnite Inc"
+    },
+    "policy": {
+      "rateLimitPerMin": 2000
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["creative"],
+    "status": "launch-member"
+  },
+  {
+    "id": "samba-tv-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.samba.tv/mcp",
+    "categories": ["ad-signals", "ctv", "audiences"],
+    "scopes": [
+      "read:audiences",
+      "write:audiences",
+      "activate:signals",
+      "read:ctv-data"
+    ],
+    "data": {
+      "residency": ["us-only"],
+      "maxSensitivity": "pii.moderate"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "Samba TV Inc"
+    },
+    "policy": {
+      "rateLimitPerMin": 1200
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["signals-activation"],
+    "status": "launch-member"
+  },
+  {
+    "id": "the-weather-company-adcp",
+    "version": "2.5.0",
+    "endpoint": "https://adcp.weather.com/mcp",
+    "categories": ["ad-signals", "contextual"],
+    "scopes": [
+      "read:audiences",
+      "activate:signals",
+      "read:weather-context"
+    ],
+    "data": {
+      "residency": ["us-only"],
+      "maxSensitivity": "internal"
+    },
+    "trust": {
+      "signed": true,
+      "publisher": "The Weather Company (IBM)"
+    },
+    "policy": {
+      "rateLimitPerMin": 800
+    },
+    "protocol": "adcp",
+    "adcpVersion": "2.5.0",
+    "adcpModules": ["signals-activation"],
+    "status": "launch-member"
+  }
+]
