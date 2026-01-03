@@ -5,3 +5,4 @@ export * from './resolution.js';
 export * from './policy.js';
 export * from './config.js';
 export * from './brand.js';
+export * from './deals.js';

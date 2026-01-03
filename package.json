@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @agent-resolver/schema && npm run build -w @agent-resolver/core && npm run build -w @agent-resolver/cli",
+    "build": "npm run build -w @agent-resolver/schema && npm run build -w @agent-resolver/core && npm run build -w @agent-resolver/deals-mcp-server && npm run build -w @agent-resolver/cli",
     "test": "npm run test --workspaces --if-present",
     "lint": "eslint packages/*/src/**/*.ts",
     "clean": "rm -rf packages/*/dist",

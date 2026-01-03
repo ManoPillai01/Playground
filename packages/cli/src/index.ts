@@ -7,6 +7,7 @@ import { syncCommand, syncStatusCommand } from './commands/sync.js';
 import { policyCommand } from './commands/policy.js';
 import { configCommand } from './commands/config.js';
 import { brandCommand } from './commands/brand.js';
+import { dealsCommand } from './commands/deals.js';
 
 const program = new Command();
 
@@ -22,6 +23,7 @@ program.addCommand(syncCommand);
 program.addCommand(policyCommand);
 program.addCommand(configCommand);
 program.addCommand(brandCommand);
+program.addCommand(dealsCommand);
 
 // Add sync status as subcommand
 syncCommand.addCommand(syncStatusCommand);

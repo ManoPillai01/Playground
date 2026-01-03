@@ -1,11 +1,11 @@
 {
-  "name": "@agent-resolver/cli",
+  "name": "@agent-resolver/deals-mcp-server",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "agent": "dist/index.js"
+    "deals-mcp-server": "dist/index.js"
   },
   "exports": {
     ".": {
@@ -14,18 +14,20 @@
     }
   },
   "scripts": {
-    "build": "tsc && cp -r src/ui dist/",
-    "clean": "rm -rf dist"
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "start": "node dist/index.js",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@agent-resolver/core": "0.1.0",
-    "@agent-resolver/deals-mcp-server": "0.1.0",
     "@agent-resolver/schema": "0.1.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
     "commander": "^11.1.0",
-    "gray-matter": "^4.0.3"
+    "zod": "^3.22.0"
   },
   "devDependencies": {
     "typescript": "^5.3.0",
-    "@types/node": "^20.10.0"
+    "@types/node": "^20.10.0",
+    "vitest": "^1.0.0"
   }
 }

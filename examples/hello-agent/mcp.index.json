@@ -76,5 +76,23 @@
       "signed": false,
       "publisher": "Delta Systems"
     }
+  },
+  {
+    "id": "iab-deals",
+    "version": "1.0.0",
+    "endpoint": "stdio://deals-mcp-server",
+    "categories": ["deals", "programmatic", "advertising"],
+    "scopes": ["read:deals", "write:deals", "sync:deals"],
+    "data": {
+      "residency": ["any"],
+      "maxSensitivity": "confidential"
+    },
+    "trust": {
+      "signed": false,
+      "publisher": "Agent Resolver"
+    },
+    "policy": {
+      "rateLimitPerMin": 1000
+    }
   }
 ]
